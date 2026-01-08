@@ -1,6 +1,6 @@
 # CS336 Language Modeling from Scratch: Assignment 1
 
-## Problem (unicode1): Understanding Unicode (1 point)
+## (2.1) Problem (unicode1): Understanding Unicode (1 point)
 
 `ord()` 把一個 unicode character 轉成 int unicode，`chr()` 把 int unicode 轉成對應的 character。
 
@@ -30,7 +30,7 @@ following in your Python interpreter and see if it matches your expectations:
     this is a teststring
     ```
 
-## Problem (unicode2): Unicode Encodings (3 points)
+## (2.2) Problem (unicode2): Unicode Encodings (3 points)
 
 Unicode 不適合用來訓練 tokenizer，因為這樣 vocabulary 會變太多 (~150K)，而且很多 character 很少用到。
 因此將 Unicode string 進行 encode 轉換成 `list[bytes]` (UTF-8)。
@@ -85,3 +85,15 @@ that yields incorrect results.
         File "<stdin>", line 1, in <module>
         UnicodeDecodeError: 'utf-8' codec can't decode byte 0xe5 in position 0: unexpected end of data
         ```
+
+## 2.3 Subword Tokenization
+* Tokenizer tradeoff
+    * vocabulary 不能太大
+    * input sequence 不能太長 (encode 後不能太多 tokens)
+
+* 折衷方案：subword tokenization
+    * vocabulary 不會太大
+    * input sequence 不會太長
+    * 避免 out-of-vocabulary 問題
+
+* BPE (byte-pair encoding) 是一種常見的方法來決定哪些 byte 組合適合作為 "subword"。
