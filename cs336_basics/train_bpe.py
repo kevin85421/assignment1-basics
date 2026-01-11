@@ -22,34 +22,51 @@ def train_bpe(
     # TODO: parallelization
     PAT = r"""'(?:[sdmt]|ll|ve|re)| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+"""
 
-    freq_table: defaultdict[list[str], int] = defaultdict(int)
+    freq_table: defaultdict[tuple[bytes, ...], int] = defaultdict(int)
     for segment in text_segments:
         for m in re.finditer(PAT, segment):
-            freq_table[tuple(m.group(0))] += 1
+            freq_table[tuple([bytes([b]) for b in m.group(0).encode("utf-8")])] += 1
 
     # text = "low low low low low lower lower widest widest widest newest newest newest newest newest newest"
     # freq_table = defaultdict(int)
     # for m in text.split():
     #     freq_table[tuple(m)] += 1
     # print(freq_table)
+    # import pickle
+    # p = Path("/root/xai/x/kaihsun/assignment1-basics/tests/_snapshots/test_train_bpe_special_tokens.pkl")
+    # snap = pickle.loads(p.read_bytes())
+    # print("snapshot merges: ")
+    # for i, m in enumerate(snap["merges"]):
+    #     print(i, m)
+
 
     merges = []
     num_merges = vocab_size - len(vocab)
     for _ in range(num_merges):
-        pair_freq_table: defaultdict[tuple[str, str], int] = defaultdict(int)
+        pair_freq_table: defaultdict[tuple[bytes, bytes], int] = defaultdict(int)
         for word in freq_table:
             for i in range(len(word) - 1):
-                pair: tuple[str, str] = (word[i], word[i+1])
+                pair: tuple[bytes, bytes] = (word[i], word[i+1])
                 pair_freq_table[pair] += freq_table[word]
 
         # Get the most common pair. If there are multiple pairs with the same frequency, choose the one with the greater lexical order.
         most_common_pair = max(pair_freq_table, key=lambda p: (pair_freq_table[p], p))
-        merge = (most_common_pair[0].encode("utf-8"), most_common_pair[1].encode("utf-8"))
-        merges.append(merge)
+        merges.append(most_common_pair)
 
-        new_index = len(vocab)
+        # if len(merges) == 1:
+        #     print("pair_freq_table: ", pair_freq_table)
+        #     print("  max pair: ", most_common_pair)
+        #     print("  max pair freq: ", pair_freq_table[most_common_pair])
+
         most_common_pair_word = most_common_pair[0] + most_common_pair[1]
-        vocab[new_index] = most_common_pair_word.encode("utf-8")
+        new_index = len(vocab)
+
+        # print("most common pair word: ", most_common_pair, "num_merges: ", len(merges))
+        # print("  (e2, 80) pair freq table: ", pair_freq_table.get((0xe2, 0x80), 0))
+        # print("  (o, n) pair freq table: ", pair_freq_table.get(("o", "n"), 0))
+        # print("  (o, on) pair freq table: ", pair_freq_table.get(("o", "on"), 0))
+
+        vocab[new_index] = most_common_pair_word
         outdated_words = {}
         
 
@@ -77,16 +94,11 @@ def train_bpe(
             freq = freq_table[outdated_word]
             del freq_table[outdated_word]
             new_word = tuple(outdated_words[outdated_word])
+            # print("new_word: ", new_word, "type(new_word): ", type(new_word))
             freq_table[new_word] = freq
 
         # print("most common pair: ", most_common_pair)
         # print("freq_table: ", freq_table)
         # print("merges: ", merges)
-
+    # print("number of merges: ", len(merges), "vocab size: ", len(vocab))
     return vocab, merges
-
-
-if __name__ == "__main__":
-    vocab, merges = train_bpe("tests/fixtures/corpus.en", 500, ["<|endoftext|>"])
-    print(vocab)
-    print(merges)
