@@ -97,3 +97,15 @@ that yields incorrect results.
     * 避免 out-of-vocabulary 問題
 
 * BPE (byte-pair encoding) 是一種常見的方法來決定哪些 byte 組合適合作為 "subword"。
+
+## 2.5 Experimenting with BPE Tokenizer Training
+
+* Problem (train_bpe): BPE Tokenizer Training (15 points)
+    ```sh
+    uv run pytest -vvs tests/test_train_bpe.py
+
+    ...
+    tests/test_train_bpe.py::test_train_bpe_speed PASSED
+    tests/test_train_bpe.py::test_train_bpe PASSED
+    tests/test_train_bpe.py::test_train_bpe_special_tokens PASSED
+    ```
