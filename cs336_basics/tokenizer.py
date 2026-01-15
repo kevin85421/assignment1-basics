@@ -17,11 +17,6 @@ class BPETokenizer:
 
     @classmethod
     def _apply_merges(cls, pretoken: str, merge_to_rank: dict[tuple[bytes, bytes], int]) -> list[bytes]:
-        # print(f"pretoken: {pretoken}")
-        # # Check if any pair in merges equals b'Once'
-        # for i, pair in enumerate(merges):
-        #     if pair[0] + pair[1] == b'Once':
-        #         print(f"Found 'Once' merge: {pair} at index {i}")
         tokens = [bytes([b]) for b in pretoken.encode("utf-8")]
         while True:
             new_tokens: list[bytes] = []
@@ -33,7 +28,6 @@ class BPETokenizer:
             # (pair, rank, index)
             min_rank_pair: tuple[tuple[bytes, bytes], int, int] | None = None
             while i < len(tokens) - 1:
-                # print(f"i={i}, tokens[i]={tokens[i]}, tokens[i+1]={tokens[i+1]}")
                 pair = (tokens[i], tokens[i+1])
                 if pair in merge_to_rank:
                     rank = merge_to_rank[pair]
@@ -49,7 +43,6 @@ class BPETokenizer:
             if min_rank_pair[2] + 2 < len(tokens):
                 new_tokens.extend(tokens[min_rank_pair[2] + 2:])
 
-            # print(f"  new_tokens: {new_tokens}")
             tokens = new_tokens
 
     def encode(self, text: str) -> list[int]:
