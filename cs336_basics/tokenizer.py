@@ -1,5 +1,5 @@
 from collections.abc import Iterable, Iterator
-from re import S
+from re import Pattern
 import regex as re
 
 class BPETokenizer:
@@ -8,7 +8,8 @@ class BPETokenizer:
         self.merge_to_rank = {pair: i for i, pair in enumerate(merges)}
         self.special_tokens = special_tokens or []
         self._token_to_id: dict[bytes, int] = {v: k for k, v in self.vocab.items()}
-        self._special_pat = re.compile("(" + "|".join(re.escape(tok) for tok in sorted(self.special_tokens, key=len, reverse=True)) + ")")
+        # If `special_tokens` is empty, `re.split` will split the text into segments of length 1. Therefore, we need to handle this case separately.
+        self._special_pat: Pattern[str] | None = re.compile("(" + "|".join(re.escape(tok) for tok in sorted(self.special_tokens, key=len, reverse=True)) + ")") if self.special_tokens else None
         self._pretoken_pat = re.compile(r"'(?:[sdmt]|ll|ve|re)| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+")
 
     def from_files(cls, vocab_filepath, merges_filepath, special_tokens=None):
@@ -53,7 +54,8 @@ class BPETokenizer:
 
     def encode(self, text: str) -> list[int]:
         tokens = []
-        for segment in re.split(self._special_pat, text):
+        segments: list[str] = re.split(self._special_pat, text) if self._special_pat else [text]
+        for segment in segments:
             if segment in self.special_tokens:
                 tokens.append(segment.encode("utf-8"))
                 continue
