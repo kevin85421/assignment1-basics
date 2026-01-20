@@ -143,3 +143,14 @@ that yields incorrect results.
     tests/test_tokenizer.py::test_encode_iterable_memory_usage PASSED
     tests/test_tokenizer.py::test_encode_memory_usage XFAILallotted (1MB).)
     ```
+
+## 3.4.2 Linear Module
+
+* Problem (linear): Implementing the linear module (1 point)
+    ```sh
+    # Path: assignment1-basics/
+    uv run pytest -k test_linear
+
+    ...
+    tests/test_model.py::test_linear PASSED
+    ```
