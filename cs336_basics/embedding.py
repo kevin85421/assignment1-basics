@@ -8,6 +8,11 @@ class Embedding(torch.nn.Module):
         self.w = torch.nn.Parameter(w)
 
     def forward(self, token_ids: torch.Tensor) -> torch.Tensor:
+        """
+        The forward method should select the embedding
+        vector for each token ID by indexing into an embedding matrix of shape (vocab_size, d_model) using a
+        torch.LongTensor of token IDs with shape (batch_size, sequence_length).
+        """
         output = torch.zeros(token_ids.shape[0], token_ids.shape[1], self.w.shape[1], device=self.w.device, dtype=self.w.dtype)
         for row in range(token_ids.shape[0]):
             for col in range(token_ids.shape[1]):

@@ -154,3 +154,14 @@ that yields incorrect results.
     ...
     tests/test_model.py::test_linear PASSED
     ```
+
+## 3.4.3 Embedding Module
+
+* Problem (embedding): Implement the embedding module (1 point)
+    ```sh
+    # Path: assignment1-basics/
+    uv run pytest -k test_embedding
+
+    ...
+    tests/test_model.py::test_embedding PASSED
+    ```
