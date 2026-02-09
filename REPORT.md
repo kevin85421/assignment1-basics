@@ -165,3 +165,14 @@ that yields incorrect results.
     ...
     tests/test_model.py::test_embedding PASSED
     ```
+
+## 3.5.1 RMSNorm
+
+* Problem (rmsnorm): Root Mean Square Layer Normalization
+    ```sh
+    # Path: assignment1-basics/
+    uv run pytest -k test_rmsnorm
+
+    ...
+    tests/test_model.py::test_rmsnorm PASSED
+    ```
