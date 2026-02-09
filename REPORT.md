@@ -176,3 +176,23 @@ that yields incorrect results.
     ...
     tests/test_model.py::test_rmsnorm PASSED
     ```
+
+## 3.5.2 Position-Wise Feed-Forward Network
+
+* `SiLU`：取代 ReLU 的 activation function。
+    ```sh
+    # Path: assignment1-basics/
+    uv run pytest -k test_silu_matches_pytorch
+
+    ...
+    tests/test_model.py::test_silu_matches_pytorch PASSED
+    ```
+
+* `SwiGLU`
+    ```sh
+    # Path: assignment1-basics/
+    uv run pytest -k test_swiglu
+
+    ...
+    tests/test_model.py::test_swiglu PASSED
+    ```

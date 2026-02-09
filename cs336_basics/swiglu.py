@@ -12,7 +12,6 @@ class SwiGLU(torch.nn.Module):
         super().__init__()
         self.d_model = d_model
         self.d_ff = d_ff
-        print(f"d_model: {d_model}, d_ff: {d_ff}")
 
         # FFN(x) = SwiGLU(x, w1, w2, w3) = (silu(x @ w1^T) * (x @ w3^T)) @ w2^T
         #
