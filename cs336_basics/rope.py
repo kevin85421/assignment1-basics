@@ -48,6 +48,11 @@ class RotaryPositionalEmbedding(nn.Module):
         #   [None, :] makes freqs a row         (1, num_pairs)
         # multiplying broadcasts to angles[i, k] = i * freqs[k]  (max_seq_len, num_pairs)
         angles = torch.arange(max_seq_len, device=device)[:, None] * freqs[None, :]
+        # register_buffer stores a tensor as part of the module's state (so it moves
+        # with .to(device)/.cuda() and shows up in state_dict) but WITHOUT making it a
+        # trainable nn.Parameter -- RoPE's cos/sin have no gradients to learn. Accessed
+        # later as self.cos / self.sin. persistent=False keeps them out of state_dict
+        # since they're fully recomputable from theta/d_k/max_seq_len.
         self.register_buffer("cos", torch.cos(angles), persistent=False)
         self.register_buffer("sin", torch.sin(angles), persistent=False)
 
