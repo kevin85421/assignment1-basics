@@ -196,3 +196,14 @@ that yields incorrect results.
     ...
     tests/test_model.py::test_swiglu PASSED
     ```
+
+## 3.5.3 Relative Positional Embeddings (RoPE)
+
+* Problem (rope): Implement RoPE
+    ```sh
+    # Path: assignment1-basics/
+    uv run pytest tests/test_model.py::test_rope -v
+
+    ...
+    tests/test_model.py::test_rope PASSED
+    ```
