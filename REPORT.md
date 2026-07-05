@@ -207,3 +207,14 @@ that yields incorrect results.
     ...
     tests/test_model.py::test_rope PASSED
     ```
+
+## 3.5.4 Scaled Dot-Product Attention
+
+* Problem (softmax): Implement softmax
+    ```sh
+    # Path: assignment1-basics/
+    uv run pytest tests/test_nn_utils.py::test_softmax_matches_pytorch -v
+
+    ...
+    tests/test_nn_utils.py::test_softmax_matches_pytorch PASSED
+    ```
