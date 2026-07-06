@@ -230,3 +230,16 @@ that yields incorrect results.
     tests/test_model.py::test_4d_scaled_dot_product_attention PASSED
     ```
 
+## 3.5.5 Causal Multi-Head Self-Attention
+
+* Problem (multihead_self_attention): Implement causal multi-head self-attention
+(5 points)
+    ```sh
+    # Path: assignment1-basics/
+    uv run pytest -k multihead -v
+
+    ...
+    tests/test_model.py::test_multihead_self_attention PASSED
+    tests/test_model.py::test_multihead_self_attention_with_rope PASSED
+    ```
+

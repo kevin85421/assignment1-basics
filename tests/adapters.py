@@ -152,7 +152,14 @@ def run_multihead_self_attention(
         Float[Tensor, " ... sequence_length d_out"]: Tensor with the output of running your optimized, batched multi-headed attention
         implementation with the given QKV projection weights and input features.
     """
-    raise NotImplementedError
+    from cs336_basics.multihead_self_attention import MultiHeadSelfAttention
+    mha = MultiHeadSelfAttention(d_model, num_heads, device=in_features.device, dtype=in_features.dtype)
+    with torch.no_grad():
+        mha.q_proj.w.copy_(q_proj_weight)
+        mha.k_proj.w.copy_(k_proj_weight)
+        mha.v_proj.w.copy_(v_proj_weight)
+        mha.output_proj.w.copy_(o_proj_weight)
+    return mha(in_features)
 
 
 def run_multihead_self_attention_with_rope(
@@ -192,7 +199,18 @@ def run_multihead_self_attention_with_rope(
         Float[Tensor, " ... sequence_length d_out"]: Tensor with the output of running your optimized, batched multi-headed attention
         implementation with the given QKV projection weights and input features.
     """
-    raise NotImplementedError
+    from cs336_basics.multihead_self_attention import MultiHeadSelfAttention
+    from cs336_basics.rope import RotaryPositionalEmbedding
+
+    d_k = d_model // num_heads
+    rope = RotaryPositionalEmbedding(theta, d_k, max_seq_len, device=in_features.device)
+    mha = MultiHeadSelfAttention(d_model, num_heads, rope=rope, device=in_features.device, dtype=in_features.dtype)
+    with torch.no_grad():
+        mha.q_proj.w.copy_(q_proj_weight)
+        mha.k_proj.w.copy_(k_proj_weight)
+        mha.v_proj.w.copy_(v_proj_weight)
+        mha.output_proj.w.copy_(o_proj_weight)
+    return mha(in_features, token_positions)
 
 
 def run_rope(
