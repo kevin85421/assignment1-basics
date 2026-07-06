@@ -218,3 +218,15 @@ that yields incorrect results.
     ...
     tests/test_nn_utils.py::test_softmax_matches_pytorch PASSED
     ```
+
+* Problem (scaled_dot_product_attention): Implement scaled dot-product attention
+(5 points)
+    ```sh
+    # Path: assignment1-basics/
+    uv run pytest -k scaled_dot_product -v
+
+    ...
+    tests/test_model.py::test_scaled_dot_product_attention PASSED
+    tests/test_model.py::test_4d_scaled_dot_product_attention PASSED
+    ```
+
