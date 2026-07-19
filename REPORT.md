@@ -243,3 +243,13 @@ that yields incorrect results.
     tests/test_model.py::test_multihead_self_attention_with_rope PASSED
     ```
 
+## 3.6 The Full Transformer LM
+
+* Problem (transformer_block): Implement the Transformer block (3 points)
+    ```sh
+    # Path: assignment1-basics/
+    uv run pytest -k test_transformer_block -v
+
+    ...
+    tests/test_model.py::test_transformer_block PASSED
+    ```
