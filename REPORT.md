@@ -253,3 +253,13 @@ that yields incorrect results.
     ...
     tests/test_model.py::test_transformer_block PASSED
     ```
+
+* Problem (transformer_lm): Implementing the Transformer LM (3 points)
+    ```sh
+    # Path: assignment1-basics/
+    uv run pytest -k test_transformer_lm -v
+
+    ...
+    tests/test_model.py::test_transformer_lm PASSED
+    tests/test_model.py::test_transformer_lm_truncated_input PASSED
+    ```
