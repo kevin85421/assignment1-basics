@@ -315,4 +315,21 @@ that yields incorrect results.
             * `num_layers` (48) * 90.6 GFLOPs + `lm_head` (164.7 GFLOPs) ~= 4.51 TFLOPs
     * (c) Based on your analysis above, which parts of the model require the most FLOPs?
         * FFN (SwiGLU) 佔最多：每層 62.91 / 90.6 ~= 69%，整個模型 48 * 62.91 / 4513 ~= 67%。
-        
+    * (d) Repeat your analysis with GPT-2 small (12 layers, 768 d_model, 12 heads), GPT-2 medium (24
+    layers, 1024 d_model, 16 heads), and GPT-2 large (36 layers, 1280 d_model, 20 heads). As the
+    model size increases, which parts of the Transformer LM take up proportionally more or less of
+    the total FLOPs?
+        * 各模型 FLOPs 分解（`context_length` = 1024、`vocab_size` = 50,257、`d_ff` = 4 * `d_model`）：
+
+          | Component | small (12L, d=768) | medium (24L, d=1024) | large (36L, d=1280) | XL (48L, d=1600) |
+          |---|---|---|---|---|
+          | q/k/v/output projections | 57.98 GF (16.6%) | 206.16 GF (20.0%) | 483.18 GF (21.4%) | 1006.63 GF (22.3%) |
+          | attention (Q @ K^T + weights @ V) | 38.65 GF (11.1%) | 103.08 GF (10.0%) | 193.27 GF (8.6%) | 322.12 GF (7.1%) |
+          | FFN (SwiGLU) | 173.95 GF (49.7%) | 618.48 GF (59.9%) | 1449.55 GF (64.2%) | 3019.90 GF (66.9%) |
+          | `lm_head` | 79.05 GF (22.6%) | 105.40 GF (10.2%) | 131.75 GF (5.8%) | 164.68 GF (3.6%) |
+          | **Total** | **349.63 GF** | **1033.11 GF** | **2257.75 GF** | **4513.34 GF** |
+
+        * 模型變大時：矩陣乘法（FFN 和 projections，隨 `num_layers` * `d_model`^2 成長）佔比越來越高；
+          attention 本體（隨 `num_layers` * `d_model` 成長，比 `d_model`^2 慢）和 `lm_head`
+          （只隨 `d_model` 成長、跟 `num_layers` 無關，只有一份）佔比越來越低 —
+          小模型裡 `lm_head` 高達 22.6%，到 XL 只剩 3.6%。 
