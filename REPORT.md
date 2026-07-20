@@ -332,4 +332,20 @@ that yields incorrect results.
         * 模型變大時：矩陣乘法（FFN 和 projections，隨 `num_layers` * `d_model`^2 成長）佔比越來越高；
           attention 本體（隨 `num_layers` * `d_model` 成長，比 `d_model`^2 慢）和 `lm_head`
           （只隨 `d_model` 成長、跟 `num_layers` 無關，只有一份）佔比越來越低 —
-          小模型裡 `lm_head` 高達 22.6%，到 XL 只剩 3.6%。 
+          小模型裡 `lm_head` 高達 22.6%，到 XL 只剩 3.6%。
+    * (e) Take GPT-2 XL and increase the context length to 16,384. How does the total FLOPs for one
+    forward pass change? How do the relative contribution of FLOPs of the model components change?
+        * GPT-2 XL、`context_length` 1,024 -> 16,384（16 倍）：
+
+          | Component | `context_length` = 1,024 | `context_length` = 16,384 |
+          |---|---|---|
+          | q/k/v/output projections | 1.007 TF (22.3%) | 16.106 TF (10.8%) |
+          | attention (Q @ K^T + weights @ V) | 0.322 TF (7.1%) | 82.463 TF (55.2%) |
+          | FFN (SwiGLU) | 3.020 TF (66.9%) | 48.318 TF (32.3%) |
+          | `lm_head` | 0.165 TF (3.6%) | 2.635 TF (1.8%) |
+          | **Total** | **4.51 TF** | **149.5 TF** |
+
+        * 總 FLOPs 變成 ~33 倍（不是 16 倍）：其他項都隨 `context_length` 線性成長（16 倍），
+          只有 attention 本體是 `context_length`^2（256 倍），把總量再往上拉。
+        * 佔比翻轉：attention 本體從 7.1% 變成 55.2% 的最大項，FFN 從 66.9% 掉到 32.3% —
+          長 context 下 `context_length`^2 項主導，這就是 FlashAttention 等優化聚焦 attention 的原因。 
