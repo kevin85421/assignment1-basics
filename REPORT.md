@@ -313,3 +313,6 @@ that yields incorrect results.
               + 6 * `context_length` * `d_model` * `d_ff` (FFN)
               = 20.97 + 6.71 + 62.91 ~= 90.6 GFLOPs
             * `num_layers` (48) * 90.6 GFLOPs + `lm_head` (164.7 GFLOPs) ~= 4.51 TFLOPs
+    * (c) Based on your analysis above, which parts of the model require the most FLOPs?
+        * FFN (SwiGLU) 佔最多：每層 62.91 / 90.6 ~= 69%，整個模型 48 * 62.91 / 4513 ~= 67%。
+        
