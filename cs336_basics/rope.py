@@ -26,7 +26,10 @@ class RotaryPositionalEmbedding(nn.Module):
             theta (float): The constant Theta in the angle formula (base for the
                 per-dimension-pair frequencies). Larger Theta -> lower frequencies.
             d_k (int): Dimension of the query/key vectors. Must be even so it can
-                be split into d_k/2 rotated pairs.
+                be split into d_k/2 rotated pairs. When used inside multi-head
+                attention, this is the per-head dimension (d_k = d_model //
+                num_heads), NOT d_model: RoPE rotates Q/K after they are split
+                into heads, and the same rotation is broadcast across all heads.
             max_seq_len (int): Largest sequence length we will ever see; the cos/sin
                 buffer is precomputed for positions 0 .. max_seq_len - 1.
             device (torch.device | None, optional): Device to store the buffers on.
