@@ -287,3 +287,29 @@ that yields incorrect results.
             * `token_embedding` (80M) + `num_layers` (48) * (transformer_block) + `RMSNorm` (1600) + Linear (80M) ~= 2.13B
     * (a-2) How much memory is required to just load this model?
         * "Assuming each parameter is represented using single-precision floating point" => fp32 = 4 bytes => 2.13B * 4 bytes = 8.52 GB
+    * (b) How many FLOPs do these matrix multiplies require in total? Assume that our input sequence has `context_length` tokens.
+        * `token_embedding`: 0 FLOPs
+        * Transformer block
+            * `MultiHeadSelfAttention`
+                * `q_proj` / `k_proj` / `v_proj` => 3 * (2 * `context_length` * `d_model` * `d_model`) FLOPs
+                * `scaled_dot_product_attention`
+                    * Q @ K^T => `num_heads` * (2 * `context_length` * `d_model // num_heads` * `context_length`) FLOPs
+                    * weights @ V => `num_heads` * (2 * `context_length` * `context_length` * `d_model // num_heads`) FLOPs
+                * `output_proj` => 2 * `context_length` * `d_model` * `d_model` FLOPs
+                * 這題不考慮 RMSNorm 這種 element-wise 操作。
+            * `SwiGLU` (FFN)
+                ```
+                (silu(x @ self.w1.T) * (x @ self.w3.T)) @ self.w2.T
+                ```
+                * `x @ w1` => 2 * `context_length` * `d_model` * `d_ff`
+                * `(...) @ w2` => 2 * `context_length` * `d_ff` * `d_model`
+                * `x @ w3` => 2 * `context_length` * `d_model` * `d_ff`
+                * 這題不考慮 `(...) * (...)` 這種 element-wise 操作。
+        * Linear (`lm_head` in `TransformerLM`)
+            * 2 * `context_length` * `d_model` * `vocab_size` FLOPs
+        * Summary
+            * 1 transformer_block = 8 * `context_length` * `d_model`^2 (q/k/v/output projections)
+              + 4 * `context_length`^2 * `d_model` (Q @ K^T + weights @ V)
+              + 6 * `context_length` * `d_model` * `d_ff` (FFN)
+              = 20.97 + 6.71 + 62.91 ~= 90.6 GFLOPs
+            * `num_layers` (48) * 90.6 GFLOPs + `lm_head` (164.7 GFLOPs) ~= 4.51 TFLOPs
