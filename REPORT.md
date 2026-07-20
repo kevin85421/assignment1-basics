@@ -263,3 +263,27 @@ that yields incorrect results.
     tests/test_model.py::test_transformer_lm PASSED
     tests/test_model.py::test_transformer_lm_truncated_input PASSED
     ```
+
+* Problem (transformer_accounting): Transformer LM resource accounting (5 points)
+  * How many trainable parameters would our model have?
+    * `token_embedding` trainable parameters
+        * `vocab_size` (50,257) * `d_model` (1,600) ~= 80M
+    * Transformer block
+        * `MultiHeadSelfAttention` trainable parameters
+            * `q_proj` / `k_proj` / `v_proj` => 3 * `d_model` * `d_model`
+            * `output_proj` => `d_model` * `d_model`
+        * `SwiGLU` (FFN) trainable parameters
+            * `w1` => `d_model` (1600) * `d_ff` (6400)
+            * `w2` => `d_model` (1600) * `d_ff` (6400)
+            * `w3` => `d_model` (1600) * `d_ff` (6400)
+        * 2 * `RMSNorm` / block
+            * `gain` => `d_model`
+        * 1 transformer_block = 4 * `d_model`^2 + 3 * `d_model` * `d_ff` + 2 * `d_model`
+    * RMSNorm
+        * `gain` => `d_model`
+    * Linear (`lm_head` in `TransformerLM`) trainable parameters
+        * `d_model` (1,600) * `vocab_size` (50,257) ~= 80M
+    * Summary
+        * `token_embedding` (80M) + `num_layers` (48) * (transformer_block) + `RMSNorm` (1600) + Linear (80M) ~= 2.13B
+  * How much memory is required to just load this model?
+    * "Assuming each parameter is represented using single-precision floating point" => fp32 = 4 bytes => 2.13B * 4 bytes = 8.52 GB
